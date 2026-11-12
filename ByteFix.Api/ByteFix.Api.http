@@ -1,0 +1,245 @@
+@host = http://localhost:5068
+
+### ============================================================
+### 200 - Consultas correctas
+### ============================================================
+
+### 200 - Listado de técnicos
+GET {{host}}/api/tecnicos
+
+### 200 - Técnicos con filtros (activo, especialidad, texto)
+GET {{host}}/api/tecnicos?activo=true&especialidad=Redes&buscar=ana
+
+### 200 - Técnico por Id
+GET {{host}}/api/tecnicos/1
+
+### 200 - Ruta anidada: reparaciones del técnico 1
+GET {{host}}/api/tecnicos/1/reparaciones
+
+### 200 - Listado de reparaciones
+GET {{host}}/api/reparaciones
+
+### 200 - Reparaciones con filtros (estado, prioridad, texto)
+GET {{host}}/api/reparaciones?estado=Pendiente&prioridad=Alta&buscar=Lenovo
+
+### 200 - Reparación por Id
+GET {{host}}/api/reparaciones/1
+
+### ============================================================
+### 201 - Creaciones correctas
+### ============================================================
+
+### 201 - Crear técnico
+POST {{host}}/api/tecnicos
+Content-Type: application/json
+
+{
+  "documento": "44556677",
+  "nombre": "Rosa",
+  "apellido": "Huamán",
+  "email": "rosa.huaman@bytefix.pe",
+  "telefono": "987999000",
+  "especialidad": "Hardware y laptops",
+  "activo": true
+}
+
+### 201 - Crear reparación
+POST {{host}}/api/reparaciones
+Content-Type: application/json
+
+{
+  "tecnicoId": 1,
+  "serie": "BF-2026-011",
+  "equipo": "Laptop",
+  "marca": "Dell",
+  "modelo": "Inspiron 3501",
+  "fallaReportada": "Se apaga al conectar el cargador",
+  "prioridad": "Alta",
+  "costo": 175.50
+}
+
+### ============================================================
+### 204 - Actualizaciones y eliminaciones correctas
+### ============================================================
+
+### 204 - Actualizar técnico 6 (creado arriba)
+PUT {{host}}/api/tecnicos/6
+Content-Type: application/json
+
+{
+  "tecnicoId": 6,
+  "documento": "44556677",
+  "nombre": "Rosa",
+  "apellido": "Huamán",
+  "email": "rosa.huaman@bytefix.pe",
+  "telefono": "987999111",
+  "especialidad": "Hardware y laptops",
+  "activo": true
+}
+
+### 204 - Actualizar reparación 11 (creada arriba) a EnProceso
+PUT {{host}}/api/reparaciones/11
+Content-Type: application/json
+
+{
+  "reparacionId": 11,
+  "tecnicoId": 1,
+  "serie": "BF-2026-011",
+  "equipo": "Laptop",
+  "marca": "Dell",
+  "modelo": "Inspiron 3501",
+  "fallaReportada": "Se apaga al conectar el cargador",
+  "prioridad": "Alta",
+  "estado": "EnProceso",
+  "costo": 175.50
+}
+
+### 204 - Eliminar reparación 11
+DELETE {{host}}/api/reparaciones/11
+
+### 204 - Eliminar técnico 6
+DELETE {{host}}/api/tecnicos/6
+
+### ============================================================
+### 400 - Datos inválidos del DTO
+### ============================================================
+
+### 400 - Técnico con documento inválido y sin nombre
+POST {{host}}/api/tecnicos
+Content-Type: application/json
+
+{
+  "documento": "abc",
+  "email": "no-es-correo"
+}
+
+### 400 - Id de la ruta distinto al Id del cuerpo
+PUT {{host}}/api/tecnicos/1
+Content-Type: application/json
+
+{
+  "tecnicoId": 2,
+  "documento": "45678912",
+  "nombre": "Luis",
+  "apellido": "Mendoza",
+  "email": "luis.mendoza@bytefix.pe",
+  "telefono": "987111222",
+  "especialidad": "Hardware y laptops",
+  "activo": true
+}
+
+### 400 - Reparación con técnico 0 y serie inválida
+POST {{host}}/api/reparaciones
+Content-Type: application/json
+
+{
+  "tecnicoId": 0,
+  "serie": "X",
+  "equipo": "",
+  "marca": "",
+  "fallaReportada": "",
+  "prioridad": "Urgente",
+  "costo": -5
+}
+
+### ============================================================
+### 404 - Recursos inexistentes
+### ============================================================
+
+### 404 - Técnico inexistente
+GET {{host}}/api/tecnicos/9999
+
+### 404 - Ruta anidada de técnico inexistente
+GET {{host}}/api/tecnicos/9999/reparaciones
+
+### 404 - Reparación inexistente
+GET {{host}}/api/reparaciones/9999
+
+### 404 - Eliminar reparación inexistente
+DELETE {{host}}/api/reparaciones/9999
+
+### ============================================================
+### 409 - Reglas de negocio
+### ============================================================
+
+### 409 - Documento de técnico duplicado
+POST {{host}}/api/tecnicos
+Content-Type: application/json
+
+{
+  "documento": "45678912",
+  "nombre": "Otro",
+  "apellido": "Técnico",
+  "email": "otro.tecnico@bytefix.pe",
+  "telefono": "900000000",
+  "especialidad": "Redes y servidores",
+  "activo": true
+}
+
+### 409 - Serie de reparación duplicada
+POST {{host}}/api/reparaciones
+Content-Type: application/json
+
+{
+  "tecnicoId": 2,
+  "serie": "BF-2026-001",
+  "equipo": "Laptop",
+  "marca": "Lenovo",
+  "modelo": "ThinkPad E14",
+  "fallaReportada": "Duplicada a propósito",
+  "prioridad": "Media",
+  "costo": 100
+}
+
+### 409 - Asignar reparación a un técnico inactivo (técnico 5)
+POST {{host}}/api/reparaciones
+Content-Type: application/json
+
+{
+  "tecnicoId": 5,
+  "serie": "BF-2026-012",
+  "equipo": "Disco externo",
+  "marca": "Seagate",
+  "modelo": "Expansion 1TB",
+  "fallaReportada": "No es reconocido por Windows",
+  "prioridad": "Media",
+  "costo": 120
+}
+
+### 409 - Modificar una reparación ya entregada (reparación 4)
+PUT {{host}}/api/reparaciones/4
+Content-Type: application/json
+
+{
+  "reparacionId": 4,
+  "tecnicoId": 4,
+  "serie": "BF-2026-004",
+  "equipo": "Impresora",
+  "marca": "Epson",
+  "modelo": "L3250",
+  "fallaReportada": "Imprime con líneas y no escanea",
+  "prioridad": "Baja",
+  "estado": "EnProceso",
+  "costo": 95
+}
+
+### 409 - Eliminar técnico con reparaciones registradas
+DELETE {{host}}/api/tecnicos/1
+
+### 409 - Desactivar un técnico con reparaciones abiertas
+PUT {{host}}/api/tecnicos/1
+Content-Type: application/json
+
+{
+  "tecnicoId": 1,
+  "documento": "45678912",
+  "nombre": "Luis",
+  "apellido": "Mendoza",
+  "email": "luis.mendoza@bytefix.pe",
+  "telefono": "987111222",
+  "especialidad": "Hardware y laptops",
+  "activo": false
+}
+
+### 409 - Eliminar una reparación ya entregada
+DELETE {{host}}/api/reparaciones/4

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ByteFix.Api/ByteFix.Api.csproj" />
+  <Project Path="ByteFix.Datos/ByteFix.Datos.csproj" />
+  <Project Path="ByteFix.Entidades/ByteFix.Entidades.csproj" />
+  <Project Path="ByteFix.Negocio/ByteFix.Negocio.csproj" />
+</Solution>
